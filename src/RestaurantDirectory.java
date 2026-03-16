@@ -160,13 +160,15 @@ public class RestaurantDirectory {
             Person owner = restaurants[i].getOwner();
             int duplicate = 0;
 
-            for (int j = 0; j < size; j++){  ///// int j = i + 1
+            //scans array to compare owners
+            for (int j = i + 1; j < size; j++){  ///// int j = 0
                 if(owner == restaurants[j].getOwner()){
                     duplicate++;
                 }
             }
 
-            if(duplicate > 1){  //// duplicate > 0
+            // If there is a duplicate
+            if(duplicate > 0){  //// duplicate > 1
                 boolean added = false;
 
 
@@ -187,6 +189,7 @@ public class RestaurantDirectory {
 
         }
 
+        // Creates the array with correct size to return
         Person[] duplicateOwners = new Person[length];
 
         for(int i = 0; i < length; i++){
@@ -194,53 +197,5 @@ public class RestaurantDirectory {
         }
 
         return duplicateOwners;
-    }
-
-    /// /////////////////////////////////////////////////////////////////////
-
-    public Person[] AfindDuplicateOwners() {
-
-        Person[] temp = new Person[size];
-        int count = 0;
-
-        for (int i = 0; i < size; i++) {
-
-            Person owner = restaurants[i].getOwner();
-            int occurrences = 0;
-
-            // count occurrences
-            for (int j = 0; j < size; j++) {
-                if (restaurants[j].getOwner() == owner) {
-                    occurrences++;
-                }
-            }
-
-            // check if owner appears more than once
-            if (occurrences > 1) {
-
-                boolean alreadyAdded = false;
-
-                for (int k = 0; k < count; k++) {
-                    if (temp[k] == owner) {
-                        alreadyAdded = true;
-                        break;
-                    }
-                }
-
-                if (!alreadyAdded) {
-                    temp[count] = owner;
-                    count++;
-                }
-            }
-        }
-
-        // create exact size result
-        Person[] result = new Person[count];
-
-        for (int i = 0; i < count; i++) {
-            result[i] = temp[i];
-        }
-
-        return result;
     }
 }
