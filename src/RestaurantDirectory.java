@@ -151,30 +151,96 @@ public class RestaurantDirectory {
     /// /////////////////////////// 9 //////////////////////////////////////////////////////
 
     public Person[] findDuplicateOwners(){
+
+        Person[] compare = new Person[size];
         int length = 0;
 
         for(int i = 0; i < size; i++){
 
+            Person owner = restaurants[i].getOwner();
             int duplicate = 0;
 
-            for (int j = i + 1; j < size; j++){
-                if(restaurants[i].getOwner() == restaurants[j].getOwner()){
+            for (int j = 0; j < size; j++){  //int j = i + 1
+                if(owner == restaurants[j].getOwner()){
                     duplicate++;
                 }
             }
 
-            if(duplicate == 1){
-                length++;
-            }
+            if(duplicate > 1){  /// / duplicate > 0
+                boolean added = false;
 
-            if(duplicate > 1){
 
+                //check to see if already in list
+                for (int k = 0; k < length; k++){
+                    if (compare[k] == owner){
+                        added = true;
+                        break;
+                    }
+                }
+
+                // adds to list if not already there
+                if(!added){
+                    compare[length] = owner;
+                    length++;
+                }
             }
 
         }
 
         Person[] duplicateOwners = new Person[length];
+
+        for(int i = 0; i < length; i++){
+            duplicateOwners[i] = compare[i];
+        }
+
         return duplicateOwners;
     }
+    
+    /// /////////////////////////////////////////////////////////////////////
 
+    public Person[] AfindDuplicateOwners() {
+
+        Person[] temp = new Person[size];
+        int count = 0;
+
+        for (int i = 0; i < size; i++) {
+
+            Person owner = restaurants[i].getOwner();
+            int occurrences = 0;
+
+            // count occurrences
+            for (int j = 0; j < size; j++) {
+                if (restaurants[j].getOwner() == owner) {
+                    occurrences++;
+                }
+            }
+
+            // check if owner appears more than once
+            if (occurrences > 1) {
+
+                boolean alreadyAdded = false;
+
+                for (int k = 0; k < count; k++) {
+                    if (temp[k] == owner) {
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyAdded) {
+                    temp[count] = owner;
+                    count++;
+                }
+            }
+        }
+
+        // create exact size result
+        Person[] result = new Person[count];
+
+        for (int i = 0; i < count; i++) {
+            result[i] = temp[i];
+        }
+
+        return result;
+    }
 }
