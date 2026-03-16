@@ -160,13 +160,13 @@ public class RestaurantDirectory {
             Person owner = restaurants[i].getOwner();
             int duplicate = 0;
 
-            for (int j = 0; j < size; j++){  //int j = i + 1
+            for (int j = 0; j < size; j++){  ///// int j = i + 1
                 if(owner == restaurants[j].getOwner()){
                     duplicate++;
                 }
             }
 
-            if(duplicate > 1){  /// / duplicate > 0
+            if(duplicate > 1){  //// duplicate > 0
                 boolean added = false;
 
 
@@ -195,7 +195,7 @@ public class RestaurantDirectory {
 
         return duplicateOwners;
     }
-    
+
     /// /////////////////////////////////////////////////////////////////////
 
     public Person[] AfindDuplicateOwners() {
