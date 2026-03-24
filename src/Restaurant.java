@@ -71,7 +71,7 @@ public class Restaurant {
     }
 
     public String getTaxInfo(){
-        return getName() + " / " + getOwner().getFullName() + " / " + getBusinessLicenseNumber() + " / " + getYearlyGrossRevenue();
+        return getName() + " / " + getOwner() + " / " + getBusinessLicenseNumber() + " / " + getYearlyGrossRevenue();
     }
 
 }
