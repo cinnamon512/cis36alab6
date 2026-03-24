@@ -13,8 +13,7 @@ public class RestaurantDirectory {
 //////////////////////////// A ////////////////////////////////////////////////////////
 
     public RestaurantDirectory(){
-        size = 100;
-        restaurants = new Restaurant[size];
+        restaurants = new Restaurant[100];
     }
 
     public RestaurantDirectory(int capacity){
