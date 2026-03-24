@@ -67,7 +67,7 @@ public class Restaurant {
     }
 
     public String invite(){
-        return "Come down to " + getName() + ", a restaurant serving " + getFoodType() + " cuisine, located at " + getAddress() + "!";
+        return "Come on down to " + getName() + ", a restaurant serving " + getFoodType() + ", located at " + getAddress() + "!";
     }
 
     public String getTaxInfo(){
