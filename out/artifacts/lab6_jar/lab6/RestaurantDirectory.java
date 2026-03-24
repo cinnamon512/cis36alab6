@@ -4,12 +4,6 @@ public class RestaurantDirectory {
     private Restaurant[] restaurants;
     private int size = 0;
 
-//////////////////////////////////// GETTERS //////////////////////////////////////////
-
-    public int getSize(){
-        return this.size;
-    }
-
 //////////////////////////// A ////////////////////////////////////////////////////////
 
     public RestaurantDirectory(){
@@ -204,5 +198,4 @@ public class RestaurantDirectory {
 
         return duplicateOwners;
     }
-    
 }
