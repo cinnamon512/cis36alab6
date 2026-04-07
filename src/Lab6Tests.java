@@ -1,17 +1,19 @@
 // Lab 6 Tests
 // Please see "Using JUnit in IntelliJ" in the bottom-most module to use this!
+// v2: March 24, 2026
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIf;
+
+import static javax.swing.UIManager.getInt;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 public class Lab6Tests {
-
-
-
 
         @Nested
         @Order(1)
@@ -140,12 +142,10 @@ public class Lab6Tests {
 
             @BeforeEach
             void setUp() {
-                aPerson = new Person("Bobby", "McGee");
+                aPerson = new Person("Bobby", "McGee");;
             }
-
             @AfterEach
-            void tearDown() {
-            }
+            void tearDown() {}
 
             @Test
             void prettyPrint() {
@@ -245,6 +245,15 @@ public class Lab6Tests {
 
             Restaurant r;
 
+            @BeforeEach
+            void setUp() {
+                this.r = new Restaurant(name, ft, address, owner, pn, bus, rev);
+            }
+
+            @AfterEach
+            void tearDown() {
+            }
+
             @Test
             @DisplayName("Seven-Arg Constructor")
             void testConstructor1() {
@@ -258,15 +267,6 @@ public class Lab6Tests {
                 assertEquals(r.getBusinessLicenseNumber(), bus);
                 assertEquals(r.getYearlyGrossRevenue(), rev);
                 }
-
-            @BeforeEach
-            void setUp() {
-                this.r = new Restaurant(name, ft, address, owner, pn, bus, rev);
-            }
-
-            @AfterEach
-            void tearDown() {
-            }
 
             @Test
             void setName() {
@@ -334,7 +334,29 @@ public class Lab6Tests {
     @DisplayName("RestaurantDirectory Tests")
     class RestaurantDirectoryTest {
 
+            // Helper method for testing: act as getter for RestaurantDirectory.size, since it's private and no getter exists
+        // I've given it the distinctly-named __getSize because I don't want to confuse anyone into thinking this is how a normal getter can be used!
+        public int __getSize(RestaurantDirectory rd) {
+            Field s = null;
+            try {
+                s = RestaurantDirectory.class.getDeclaredField("size");
+                s.setAccessible(true);
+                if (!s.getType().getTypeName().equals("int")) {
+                    fail("RestaurantDirectory class instance variable named 'size' is not of type int!");
+                }
+            } catch (NoSuchFieldException e) {
+                fail("RestaurantDirectory class has no instance variable named 'size'!");
+            }
+                // size exists and is type int
+            try {
+                return s.getInt(rd);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
             RestaurantDirectory dir;
+
 
             PhoneNumber pn = new PhoneNumber("123", "555", "1212");
             Person owners[] = {
@@ -362,7 +384,7 @@ public class Lab6Tests {
         @BeforeEach
         void setUp() {
             dir = new RestaurantDirectory();
-            assertEquals(0, dir.getSize());
+            assertEquals(0, __getSize(dir));
             dir.addRestaurant(restaurants[0]);
             dir.addRestaurant(restaurants[1]);
             dir.addRestaurant(restaurants[2]);
@@ -381,19 +403,19 @@ public class Lab6Tests {
         @Test
         void addRestaurant() {
             RestaurantDirectory dir = new RestaurantDirectory();
-            assertEquals(0, dir.getSize());
+            assertEquals(0, __getSize(dir));
             dir.addRestaurant(restaurants[0]);
-            assertEquals(1, dir.getSize());
+            assertEquals(1, __getSize(dir));
             dir.addRestaurant(restaurants[1]);
-            assertEquals(2, dir.getSize());
+            assertEquals(2, __getSize(dir));
             dir.addRestaurant(restaurants[2]);
-            assertEquals(3, dir.getSize());
+            assertEquals(3, __getSize(dir));
             dir.addRestaurant(restaurants[3]);
-            assertEquals(4, dir.getSize());
+            assertEquals(4, __getSize(dir));
             dir.addRestaurant(restaurants[4]);
-            assertEquals(5, dir.getSize());
+            assertEquals(5, __getSize(dir));
             dir.addRestaurant(restaurants[0]); // intentially duping Restaurant instance
-            assertEquals(6, dir.getSize());
+            assertEquals(6, __getSize(dir));
         }
 
         @Test
@@ -453,22 +475,49 @@ public class Lab6Tests {
 
         @Test
         void computeTaxRevenue() {
+            assertEquals(70.04325, dir.computeTaxRevenue(0.05));
+            assertEquals(0.0, dir.computeTaxRevenue(0.0));
+            assertEquals(700.4325, dir.computeTaxRevenue(0.5));
+
         }
 
-        @Test
-        void searchByOwner() {
+        // Helper methods for accessing stretch goal methods at runtime, to avoid blocking compilation
+        // if stretch goals aren't implemented
+
+        // This should only be run if the runtime check for implementation has already been done.
+        public Method getSearchByOwner(RestaurantDirectory rd) {
+            Method sbo = null;
+            try {
+                sbo = RestaurantDirectory.class.getMethod("searchByOwner", new Class[] {Person.class});
+            } catch (NoSuchMethodException e) {
+                System.out.println("getSearchByOwner not implemented?");
+                throw new RuntimeException(e);
+            }
+            return sbo;
         }
 
-        @Test
-        void addRestaurants() {
+        // This should only be run if the runtime check for implementation has already been done.
+        public Method getAddRestaurants(RestaurantDirectory rd) {
+            Method ar = null;
+            try {
+                ar = RestaurantDirectory.class.getMethod("addRestaurants", new Class[] {Restaurant[].class});
+            } catch (NoSuchMethodException e) {
+                System.out.println("addRestaurants not implemented?");
+                throw new RuntimeException(e);
+            }
+            return ar;
         }
 
-        @Test
-        void deDupeArrayOfPerson() {
-        }
-
-        @Test
-        void findDuplicateOwners() {
+        // This should only be run if the runtime check for implementation has already been done.
+        public Method getFindDuplicateOwners(RestaurantDirectory rd) {
+            Method fdo = null;
+            try {
+                fdo = RestaurantDirectory.class.getMethod("findDuplicateOwners");
+            } catch (NoSuchMethodException e) {
+                System.out.println("findDuplicateOwners not implemented?");
+                throw new RuntimeException(e);
+            }
+            return fdo;
         }
 
         @Nested
@@ -478,50 +527,58 @@ public class Lab6Tests {
 
             @Test
             @EnabledIf("searchByOwnerImplemented")
-            void searchByOwner() {
-                Restaurant[] matches = dir.searchByOwner(owners[0]);
+            void searchByOwner() throws InvocationTargetException, IllegalAccessException {
+                Restaurant[] matches = (Restaurant[]) getSearchByOwner(dir).invoke(dir, owners[0]);
                 assertEquals(2, matches.length);
                 assertEquals(restaurants[0], matches[0]);
                 assertEquals(restaurants[7], matches[1]);
-                matches = dir.searchByOwner(owners[1]);
+                matches = (Restaurant[]) getSearchByOwner(dir).invoke(dir, owners[1]); // TODO better solution, like others below
                 assertEquals(1, matches.length);
-                matches = dir.searchByOwner(owners[2]);
+                matches = (Restaurant[]) getSearchByOwner(dir).invoke(dir, owners[2]);
                 assertEquals(1, matches.length);
-                matches = dir.searchByOwner(owners[3]);
+                matches = (Restaurant[]) getSearchByOwner(dir).invoke(dir, owners[3]);
                 assertEquals(2, matches.length);
-                matches = dir.searchByOwner(owners[4]);
+                matches = (Restaurant[]) getSearchByOwner(dir).invoke(dir, owners[4]);
                 assertEquals(3, matches.length);
-                matches = dir.searchByOwner(owners[5]);
+                matches = (Restaurant[]) getSearchByOwner(dir).invoke(dir, owners[5]);
                 assertEquals(0, matches.length);
 
             }
 
             @Test
             @EnabledIf("addRestaurantsImplemented")
-            void addRestaurants() {
+            void addRestaurants() throws InvocationTargetException, IllegalAccessException {
                 dir = new RestaurantDirectory(); // internal array length of 100
-                assertEquals(0, dir.getSize());
-                assertTrue(dir.addRestaurants(new Restaurant[] {restaurants[2], restaurants[0]})); // add two
-                assertEquals(2, dir.getSize());
+                assertEquals(0, __getSize(dir));
+                assertTrue((boolean) getAddRestaurants(dir).invoke(dir, (Object) new Restaurant[] {restaurants[2], restaurants[0]})); // add two
+                assertEquals(2, __getSize(dir));
                 assertEquals(restaurants[2], dir.searchByName("Cindy's Place")[0]);
                 assertEquals(restaurants[0], dir.searchByName("Common Name")[0]);
-                assertTrue(dir.addRestaurants(new Restaurant[] {restaurants[0]})); // add another copy of restaurant 0
-                assertEquals(3, dir.getSize());
+                assertTrue((boolean) getAddRestaurants(dir).invoke(dir, (Object) new Restaurant[] {restaurants[0]})); // add another copy of restaurant 0
+                assertEquals(3, __getSize(dir));
                 assertEquals(restaurants[0], dir.searchByName("Common Name")[0]);
                 assertEquals(restaurants[0], dir.searchByName("Common Name")[1]);
                 assertEquals(restaurants[2], dir.searchByName("Cindy's Place")[0]);
-                assertTrue(dir.addRestaurants(new Restaurant[] {restaurants[3], restaurants[4], restaurants[5]})); // add three more
-                assertEquals(6, dir.getSize());
+                assertTrue((boolean) getAddRestaurants(dir).invoke(dir, (Object) new Restaurant[] {restaurants[3], restaurants[4], restaurants[5]})); // add three more
+                assertEquals(6, __getSize(dir));
                 assertEquals(restaurants[3], dir.searchByName("Pancake Palace")[0]);
                 assertEquals(restaurants[4], dir.searchByName("Eazy's 1")[0]);
                 assertEquals(3, dir.searchByName("Common Name").length);
 
                 // Add when no room to accept:
-                assertFalse(dir.addRestaurants(new Restaurant[95])); // All nulls; should handle this!
-                assertEquals(6, dir.getSize()); // and size should be unchanged.
-
+                assertFalse((boolean) getAddRestaurants(dir).invoke(dir, (Object) new Restaurant[95])); // All nulls; should handle this!
+                assertEquals(6, __getSize(dir)); // and size should be unchanged.
             }
 
+            @Test
+            @EnabledIf("findDuplicateOwnersImplemented")
+            void findDuplicateOwners() throws InvocationTargetException, IllegalAccessException {
+                    Person[] duplicateOwners = (Person[]) getFindDuplicateOwners(dir).invoke(dir);
+                    assertEquals(3, duplicateOwners.length);
+                    assertTrue(Arrays.asList(duplicateOwners).contains(owners[0]));
+                    assertTrue(Arrays.asList(duplicateOwners).contains(owners[3]));
+                    assertTrue(Arrays.asList(duplicateOwners).contains(owners[4]));
+            }
 
             boolean searchByOwnerImplemented() {
                 try {
@@ -540,6 +597,16 @@ public class Lab6Tests {
                 }
                 return true;
             }
+
+            boolean findDuplicateOwnersImplemented() {
+                try {
+                    Method fdo = RestaurantDirectory.class.getDeclaredMethod("findDuplicateOwners", new Class[] {} );
+                } catch (NoSuchMethodException e) {
+                    return false;
+                }
+                return true;
+            }
+
             }
 
         }
